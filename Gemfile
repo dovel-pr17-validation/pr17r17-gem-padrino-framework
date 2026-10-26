@@ -61,7 +61,7 @@ group :development do
   gem 'rake',             '>= 10.5.0'
   gem 'rb-readline',      '~> 0.4.2'
   gem 'rubocop',          '~> 1.6', platforms: [:mri]
-  gem 'rubocop-minitest', '~>0.34.4', platforms: [:mri]
+  gem 'rubocop-minitest', '~>0.41.0', platforms: [:mri]
   gem 'webmock',          '~> 3.19'
   gem 'yard',             '>= 0.7.2'
 
