@@ -1,0 +1,220 @@
+require:
+  - rubocop-minitest
+
+AllCops:
+  TargetRubyVersion: 2.7
+
+## Custom settings according to the current codebase
+Lint/MissingSuper:
+  AllowedParentClasses:
+    - Rackup::Server
+
+Layout/LineLength:
+  Max: 200
+
+
+## Won't change without breaking changes or major refactoring
+Metrics:
+  Enabled: false
+
+Naming/ConstantName:
+  Enabled: false
+
+Naming/FileName:
+  Enabled: false
+
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+Naming/PredicatePrefix:
+  Enabled: false
+
+Lint/UnusedMethodArgument:
+  Enabled: false
+
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+Style/RescueModifier:
+  Enabled: false
+
+Style/StderrPuts:
+  Enabled: false
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/MutableConstant:
+  Enabled: false
+
+Style/ParallelAssignment:
+  Enabled: false
+
+Style/RedundantSelf:
+  Enabled: false
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+
+## It's not really necessary to address about these
+Style/ModuleFunction:
+  Enabled: false
+  Severity: warning
+
+Style/MultipleComparison:
+  Enabled: false
+  Severity: warning
+
+Style/RescueStandardError:
+  Enabled: false
+  Severity: warning
+
+Style/SpecialGlobalVars:
+  Enabled: false
+  Severity: warning
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+  Severity: warning
+
+Style/CommentedKeyword:
+  Enabled: false
+  Severity: warning
+
+Style/Documentation:
+  Enabled: false
+  Severity: warning
+
+Style/SingleLineMethods:
+  Enabled: false
+  Severity: warning
+
+Gemspec/OrderedDependencies:
+  Enabled: false
+  Severity: warning
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+  Severity: warning
+
+Bundler/OrderedGems:
+  Enabled: false
+  Severity: warning
+
+
+## We should address these eventually
+Naming/AccessorMethodName:
+  Exclude:
+    - padrino-gen/lib/padrino-gen/padrino-tasks/activerecord.rb
+    - padrino-gen/lib/padrino-gen/padrino-tasks/mongoid.rb
+
+Naming/RescuedExceptionsVariableName:
+  Exclude:
+    - padrino-core/lib/padrino-core/loader.rb
+
+Naming/VariableNumber:
+  Exclude:
+    - padrino-performance/test/bench_core.rb
+
+Style/CaseEquality:
+  Exclude:
+    - padrino-core/lib/padrino-core/filter.rb
+    - padrino-core/lib/padrino-core/path_router/compiler.rb
+
+Style/CombinableLoops:
+  Exclude:
+    - padrino-gen/lib/padrino-gen/padrino-tasks/mongoid.rb
+
+Style/Encoding:
+  Exclude:
+    - padrino-admin/padrino-admin.gemspec
+    - padrino-cache/padrino-cache.gemspec
+    - padrino-gen/lib/padrino-gen/generators/project/config.ru
+    - padrino-gen/padrino-gen.gemspec
+    - padrino-helpers/padrino-helpers.gemspec
+    - padrino-mailer/padrino-mailer.gemspec
+    - padrino-performance/padrino-performance.gemspec
+    - padrino-support/padrino-support.gemspec
+    - padrino/padrino.gemspec
+
+Style/EvalWithLocation:
+  Exclude:
+    - padrino-core/lib/padrino-core/cli/base.rb
+
+Style/Semicolon:
+  Exclude:
+    - padrino-admin/lib/padrino-admin/generators/orm.rb
+    - '**/test/**/*'
+
+Lint/SendWithMixinArgument:
+  Exclude:
+    - padrino-performance/lib/suites/json.rb
+
+Lint/ScriptPermission:
+  Exclude:
+    - padrino-admin/padrino-admin.gemspec
+    - padrino-cache/padrino-cache.gemspec
+    - padrino-gen/lib/padrino-gen/generators/project/config.ru
+    - padrino-gen/padrino-gen.gemspec
+    - padrino-helpers/padrino-helpers.gemspec
+    - padrino-mailer/padrino-mailer.gemspec
+    - padrino-performance/padrino-performance.gemspec
+    - padrino-support/padrino-support.gemspec
+    - padrino/padrino.gemspec
+
+Lint/RescueException:
+  Exclude:
+    - padrino-core/lib/padrino-core/application/routing.rb
+    - padrino-core/lib/padrino-core/loader.rb
+    - padrino-core/lib/padrino-core/reloader.rb
+
+Lint/IneffectiveAccessModifier:
+  Exclude:
+    - padrino-core/lib/padrino-core/cli/base.rb
+    - padrino-core/lib/padrino-core/cli/launcher.rb
+    - padrino-helpers/lib/padrino-helpers/form_builder/abstract_form_builder.rb
+
+Lint/ShadowedException:
+  Exclude:
+    - padrino-core/lib/padrino-core/cli/binstub.rb
+
+Lint/UselessMethodDefinition:
+  Exclude:
+    - padrino-core/test/fixtures/apps/mountable_apps/rack_apps.rb
+
+
+# Tests exclusions
+# Naming/FileName:
+#   Exclude:
+#     - '**/test/**/*'
+
+Style/GlobalVars:
+  Exclude:
+    - '**/test/**/*'
+
+Style/BlockDelimiters:
+  Exclude:
+    - '**/test/**/*'
+
+Lint/RaiseException:
+  Exclude:
+    - '**/test/**/*'
+
+Lint/EmptyFile:
+  Exclude:
+    - '**/test/**/*'
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - '**/test/**/*'
+
+Style/StructInheritance:
+  Exclude:
+    - '**/test/**/*'

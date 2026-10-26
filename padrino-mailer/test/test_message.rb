@@ -1,0 +1,215 @@
+require_relative 'helper'
+
+describe 'Message' do
+  describe 'the message' do
+    it 'should accept headers and body' do
+      message = Mail::Message.new do
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        body    'This is a body of text'
+      end
+
+      assert_equal ['padrino@me.com'],       message.from
+      assert_equal ['padrino@you.com'],      message.to
+      assert_equal 'Hello there Padrino',    message.subject
+      assert_equal 'This is a body of text', message.body.to_s.chomp
+    end
+
+    it 'should raise an error if template was not found' do
+      assert_raises Padrino::Rendering::TemplateNotFound do
+        Mail::Message.new do
+          from    'padrino@me.com'
+          to      'padrino@you.com'
+          subject 'Hello there Padrino'
+          render  'foo/bar'
+        end
+      end
+    end
+
+    it 'should use locals' do
+      message = Mail::Message.new do
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        locals  foo: 'Im Foo!'
+        body    erb('<%= foo %>')
+      end
+
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'Im Foo!',             message.body.to_s.chomp
+    end
+
+    it 'should use views paths' do
+      message = Mail::Message.new do
+        views   "#{__dir__}/fixtures/views/mailers"
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        render  :bar
+      end
+
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'This is a bar message in mailers dir', message.body.to_s.chomp
+    end
+
+    it 'should use views and mailers paths' do
+      message = Mail::Message.new do
+        views   "#{__dir__}/fixtures/views/mailers"
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        render  'alternate/foo'
+      end
+
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'This is a foo message in mailers/alternate dir', message.body.to_s.chomp
+    end
+
+    it 'should use layouts' do
+      message = Mail::Message.new do
+        views   "#{__dir__}/fixtures/views/mailers"
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        render  'sample/foo', layout: :"layouts/sample"
+      end
+
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'Layout Sample This is a foo message in mailers/sample dir', message.body.to_s.strip
+    end
+
+    it 'should use i18n' do
+      I18n.locale = :en
+
+      message = Mail::Message.new do
+        views   "#{__dir__}/fixtures/views/mailers"
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        render  'i18n/hello'
+      end
+
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'Hello World',         message.body.to_s.chomp
+
+      I18n.locale = :it
+
+      message = Mail::Message.new do
+        views   "#{__dir__}/fixtures/views/mailers"
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        render  'i18n/hello'
+      end
+
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'Salve Mondo',         message.body.to_s.chomp
+    end
+
+    it 'should auto lookup template for the given content_type' do
+      message = Mail::Message.new do
+        views        "#{__dir__}/fixtures/views/mailers"
+        from         'padrino@me.com'
+        to           'padrino@you.com'
+        subject      'Hello there Padrino'
+        content_type 'text/html'
+        render       'multipart/basic'
+      end
+
+      message.encoded
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'text html',           message.body.to_s.chomp
+      assert_equal :html,                 message.content_type
+
+      message = Mail::Message.new do
+        views        "#{__dir__}/fixtures/views/mailers"
+        from         'padrino@me.com'
+        to           'padrino@you.com'
+        subject      'Hello there Padrino'
+        content_type :plain
+        render       'multipart/basic'
+      end
+
+      message.encoded
+      assert_equal ['padrino@me.com'],    message.from
+      assert_equal ['padrino@you.com'],   message.to
+      assert_equal 'Hello there Padrino', message.subject
+      assert_equal 'plain text',          message.body.to_s.chomp
+      assert_equal :plain,                message.content_type
+    end
+
+    it 'should render partials' do
+      objects = [1, 2, '<evil>', '<good>'.html_safe]
+      message = Mail::Message.new do
+        from    'padrino@me.com'
+        to      'padrino@you.com'
+        subject 'Hello there Padrino'
+        views   "#{__dir__}/fixtures/views/mailers"
+        partial 'partial/object', collection: objects
+      end
+
+      assert_equal "Object 1<br>\nObject 2<br>\nObject &lt;evil&gt;<br>\nObject <good><br>", message.body.to_s.chomp
+    end
+  end
+
+  describe 'template engine settings' do
+    it 'should escape output in the message and its parts' do
+      message = Mail::Message.new { body erb('<%= "<b>" %>') }
+      part = Mail::Part.new { body erb('<%= "<i>" %>') }
+      haml_message = Mail::Message.new { body haml('%p= "<b>"') }
+      slim_message = Mail::Message.new { body slim('p = "<b>"') }
+
+      assert_equal '&lt;b&gt;', message.body.to_s.chomp
+      assert_equal '&lt;i&gt;', part.body.to_s.chomp
+      assert_equal '<p>&lt;b&gt;</p>', haml_message.body.to_s.chomp
+      assert_equal '<p>&lt;b&gt;</p>', slim_message.body.to_s.chomp
+    end
+
+    it 'should not leak onto other classes' do
+      Mail::Message.new { body 'sent' }
+
+      refute_respond_to String, :erb
+      refute_respond_to Class, :haml
+      plain = Sinatra.new(Sinatra::Base) { get('/') { erb '<%= "<b>" %>' } }
+      assert_equal '<b>', Rack::MockRequest.new(plain).get('/').body
+    end
+  end
+
+  describe 'Mail::Message.set' do
+    it 'should define accessor methods for settings' do
+      Mail::Message.set(:_test_custom_setting, 'custom_value')
+      message = Mail::Message.new
+      assert_equal 'custom_value', message.settings._test_custom_setting
+    ensure
+      if Mail::Message.singleton_class.method_defined?(:_test_custom_setting)
+        Mail::Message.singleton_class.send(:remove_method, :_test_custom_setting)
+      end
+    end
+
+    it 'should not redefine an already defined method' do
+      Mail::Message.set(:_test_another_setting, 'first')
+      Mail::Message.set(:_test_another_setting, 'second')
+      message = Mail::Message.new
+      assert_equal 'first', message.settings._test_another_setting
+    ensure
+      if Mail::Message.singleton_class.method_defined?(:_test_another_setting)
+        Mail::Message.singleton_class.send(:remove_method, :_test_another_setting)
+      end
+    end
+  end
+end

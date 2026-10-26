@@ -1,0 +1,24 @@
+require_relative 'helper'
+
+# Reloading outside development needs tracking enabled before the apps load.
+Padrino::Reloader.enabled = true
+require_relative 'fixtures/reloadable_apps/main/app'
+
+describe 'ExternalReloader' do
+  describe 'for external app' do
+    before do
+      Padrino.clear!
+      Padrino.mount('ReloadableApp::External').to('/reloadable/external')
+      Padrino.mount('ReloadableApp::Main').to('/reloadable')
+      Padrino.load!
+    end
+
+    it 'should avoid reloading the file if its path is not started with Padrino.root' do
+      @app = Padrino.application
+      Padrino.stub(:root, File.expand_path("#{__dir__}/fixtures/reloadable_apps/main")) do
+        get '/reloadable/external/base'
+      end
+      assert_equal 'Hello External App', body
+    end
+  end
+end

@@ -1,0 +1,6 @@
+--- 
+:test: bacon
+:mock: mocha
+:orm: none
+:renderer: erb
+:script: jquery
